@@ -1,122 +1,88 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import React, { useState, useEffect, useRef } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
+import { useGLTF, OrbitControls } from '@react-three/drei'
 
-function App() {
-  const [count, setCount] = useState(0)
+function Model({ position }) {
+// This is where i imported the file this is really a mark 
+  const { scene } = useGLTF('/low_poly_tree_scene_free.glb')
+  const meshRef = useRef()
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+  useFrame(() => {
+    if (meshRef.current) {
+      meshRef.current.position.x = position[0]
+      meshRef.current.position.z = position[1]
+    }
+  })
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+  return <primitive ref={meshRef} object={scene} scale={0.8} />
 }
 
-export default App
+export default function App() {
+  const [pos, setPos] = useState([0, 0])
+  const [visitedSite, setVisitedSite] = useState(null)
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const speed = 0.3
+      setPos((prev) => {
+        let [x, z] = prev
+        if (e.key === 'w' || e.key === 'ArrowUp') z -= speed
+        if (e.key === 's' || e.key === 'ArrowDown') z += speed
+        if (e.key === 'a' || e.key === 'ArrowLeft') x -= speed
+        if (e.key === 'd' || e.key === 'ArrowRight') x += speed
+
+        const distToSite = Math.sqrt(Math.pow(x - (-2), 2) + Math.pow(z - (-2), 2))
+        if (distToSite < 1.5) {
+          setVisitedSite('Historic Tree')
+        }
+
+        return [x, z]
+      })
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
+  return ( //Ik typical css would be in teh css folder but since this was my first time this is the only way my code would not break. 
+    <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
+      <Canvas camera={{ position: [0, 5, 8], fov: 50 }}>
+        <ambientLight intensity={1.5} />
+        <directionalLight position={[10, 10, 5]} intensity={1} />
+        <gridHelper args={[20, 20]} />
+        <Model position={pos} />
+        <OrbitControls />
+      </Canvas>
+
+      <div style={{
+        position: 'absolute',
+        top: 20,
+        left: 20,
+        background: 'rgba(242, 243, 248, 0.85)',
+        color: 'white',
+        padding: '20px',
+        borderRadius: '12px',
+        maxWidth: '320px',
+        fontFamily: 'sans-serif'
+      }}>
+        <h2 style={{ margin: '0 0 8px 0', fontSize: '1.25rem' }}>Experiencing Ward One</h2>
+        <p style={{ margin: '0 0 12px 0', fontSize: '0.875rem', color: '#94a3b8' }}>
+          Use <strong>WASD</strong> or <strong>Arrow Keys</strong> to move the model.
+        </p>
+        <p style={{ fontSize: '0.85rem' }}>X: {pos[0].toFixed(1)} | Z: {pos[1].toFixed(1)}</p>
+
+        {visitedSite && (
+          <div style={{ marginTop: '16px', borderTop: '1px solid #334155', paddingTop: '12px' }}>
+            <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#38bdf8', fontWeight: 'bold' }}>
+              Discovered Site
+            </span>
+            <h3 style={{ margin: '4px 0 0 0', fontSize: '1rem' }}>{visitedSite}</h3>
+            <p style={{ fontSize: '0.8rem', color: '#000000', marginTop: '4px' }}> //Change the text so it was more visible againsgt the background
+              Historic Ward One landmark area prior to displacement.
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
