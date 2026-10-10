@@ -182,3 +182,46 @@
     border-right-color: var(--border);
   }
 }
+
+ return ( //Ik typical css would be in teh css folder but since this was my first time this is the only way my code would not break. 
+    <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
+      <Canvas camera={{ position: [0, 5, 8], fov: 50 }}>
+        <ambientLight intensity={1.5} />
+        <directionalLight position={[10, 10, 5]} intensity={1} />
+        <gridHelper args={[20, 20]} />
+        <Model position={pos} />
+        <OrbitControls />
+      </Canvas>
+
+      <div style={{
+        position: 'absolute',
+        top: 20,
+        left: 20,
+        background: 'rgba(242, 243, 248, 0.85)',
+        color: 'white',
+        padding: '20px',
+        borderRadius: '12px',
+        maxWidth: '320px',
+        fontFamily: 'sans-serif'
+      }}>
+        <h2 style={{ margin: '0 0 8px 0', fontSize: '1.25rem' }}>Experiencing Ward One</h2>
+        <p style={{ margin: '0 0 12px 0', fontSize: '0.875rem', color: '#94a3b8' }}>
+          Use <strong>WASD</strong> or <strong>Arrow Keys</strong> to move the model.
+        </p>
+        <p style={{ fontSize: '0.85rem' }}>X: {pos[0].toFixed(1)} | Z: {pos[1].toFixed(1)}</p>
+
+        {visitedSite && (
+          <div style={{ marginTop: '16px', borderTop: '1px solid #334155', paddingTop: '12px' }}>
+            <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#38bdf8', fontWeight: 'bold' }}>
+              Discovered Site
+            </span>
+            <h3 style={{ margin: '4px 0 0 0', fontSize: '1rem' }}>{visitedSite}</h3>
+            <p style={{ fontSize: '0.8rem', color: '#000000', marginTop: '4px' }}> //Change the text so it was more visible againsgt the background
+              Historic Ward One landmark area prior to displacement.
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
