@@ -7,7 +7,7 @@ function Model({ position }) {
   const { scene } = useGLTF('/low_poly_tree_scene_free.glb')
   const meshRef = useRef()
 
-  useFrame(() => {
+  useFrame(() => { //a replay loop looping at 60fps to update the position 
     if (meshRef.current) {
       meshRef.current.position.x = position[0]
       meshRef.current.position.z = position[1]
@@ -17,7 +17,7 @@ function Model({ position }) {
   return <primitive ref={meshRef} object={scene} scale={0.8} />
 }
 
-export default function App() {
+export default function App() { //this is the main movement and how we handle it so having the key equal the arrow uo keys
   const [pos, setPos] = useState([0, 0])
   const [visitedSite, setVisitedSite] = useState(null)
 
@@ -44,17 +44,17 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  return ( //Ik typical css would be in teh css folder but since this was my first time this is the only way my code would not break. 
+  return ( //Ik typical css would be in teh css folder but since this was my first time this is the only way my code would not break. , but this is how it sees where we at and everything visually
     <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
       <Canvas camera={{ position: [0, 5, 8], fov: 50 }}>
         <ambientLight intensity={1.5} />
         <directionalLight position={[10, 10, 5]} intensity={1} />
         <gridHelper args={[20, 20]} />
         <Model position={pos} />
-        <OrbitControls />
+        <OrbitControls /> 
       </Canvas>
 
-      <div style={{
+      <div style={{ 
         position: 'absolute',
         top: 20,
         left: 20,
